@@ -58,12 +58,70 @@ export function Hero() {
         // Hide blob after mouse stops moving for 500ms
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
-        }, 500);
+        }, 8000);
       }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (sectionRef.current && e.touches.length > 0) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        const touch = e.touches[0];
+        setMousePosition({
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top,
+        });
+
+        // Show blob when touch moves
+        setIsMouseMoving(true);
+
+        // Clear existing timeout
+        if (mouseMoveTimeoutRef.current) {
+          clearTimeout(mouseMoveTimeoutRef.current);
+        }
+
+        // Hide blob after touch stops for 25000ms (25 seconds for mobile)
+        mouseMoveTimeoutRef.current = setTimeout(() => {
+          setIsMouseMoving(false);
+        }, 25000);
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (sectionRef.current && e.touches.length > 0) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        const touch = e.touches[0];
+        setMousePosition({
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top,
+        });
+        // Show blob immediately on touch start
+        setIsMouseMoving(true);
+        // Clear any existing timeout
+        if (mouseMoveTimeoutRef.current) {
+          clearTimeout(mouseMoveTimeoutRef.current);
+        }
+        // Set initial timeout to keep blob visible for 25 seconds
+        mouseMoveTimeoutRef.current = setTimeout(() => {
+          setIsMouseMoving(false);
+        }, 25000);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      // Clear existing timeout
+      if (mouseMoveTimeoutRef.current) {
+        clearTimeout(mouseMoveTimeoutRef.current);
+      }
+      // Keep blob visible much longer on mobile after touch ends (25 seconds)
+      // This gives time for the user to see the blob even after quick touch
+      mouseMoveTimeoutRef.current = setTimeout(() => {
+        setIsMouseMoving(false);
+      }, 25000);
     };
 
     const section = sectionRef.current;
     if (section) {
+      // Mouse events
       section.addEventListener("mousemove", handleMouseMove);
       section.addEventListener("mouseleave", () => {
         setIsMouseMoving(false);
@@ -72,11 +130,23 @@ export function Hero() {
         }
       });
 
+      // Touch events
+      section.addEventListener("touchstart", handleTouchStart, {
+        passive: true,
+      });
+      section.addEventListener("touchmove", handleTouchMove, { passive: true });
+      section.addEventListener("touchend", handleTouchEnd);
+      section.addEventListener("touchcancel", handleTouchEnd);
+
       return () => {
         section.removeEventListener("mousemove", handleMouseMove);
         section.removeEventListener("mouseleave", () => {
           setIsMouseMoving(false);
         });
+        section.removeEventListener("touchstart", handleTouchStart);
+        section.removeEventListener("touchmove", handleTouchMove);
+        section.removeEventListener("touchend", handleTouchEnd);
+        section.removeEventListener("touchcancel", handleTouchEnd);
         if (mouseMoveTimeoutRef.current) {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
@@ -121,7 +191,7 @@ export function Hero() {
       {/* Animated Blob with effects */}
       <div
         ref={blobRef}
-        className="absolute pointer-events-none transition-opacity duration-700 ease-out"
+        className="absolute pointer-events-none"
         style={{
           width: "400px",
           height: "400px",
@@ -131,8 +201,9 @@ export function Hero() {
           willChange: "transform, opacity",
           zIndex: 2,
           opacity: isMouseMoving ? 1 : 0,
-          transition:
-            "opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s linear",
+          transition: isMouseMoving
+            ? "opacity 0.3s ease-out, transform 0.1s linear"
+            : "opacity 5s ease-out, transform 0.1s linear",
         }}
       >
         <div className="blob-container">
@@ -179,7 +250,10 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="absolute bottom-[-10px] w-full flex items-center justify-center z-100">
+      <div
+        className="absolute bottom-0 lg:bottom-[-10px] w-full flex items-center justify-center"
+        style={{ zIndex: 100 }}
+      >
         <Image
           src="/whale.png"
           alt="Portfolio Sketches"

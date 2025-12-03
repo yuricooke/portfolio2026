@@ -49,6 +49,11 @@ body {
   filter: blur(1px); */
   opacity: 0.9;
   mix-blend-mode: difference;
+
+  @media (max-width: 768px) {
+    animation: blob-morph 15s ease-in-out infinite,
+      rainbow-colors 10s ease-in-out infinite;
+  }
 }
 
 @keyframes blob-morph {
