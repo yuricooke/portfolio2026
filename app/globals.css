@@ -51,7 +51,7 @@ body {
   mix-blend-mode: difference;
 
   @media (max-width: 768px) {
-    animation: blob-morph 15s ease-in-out infinite,
+    animation: blob-morph 5s ease-in-out infinite,
       rainbow-colors 10s ease-in-out infinite;
   }
 }

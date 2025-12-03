@@ -18,10 +18,21 @@ export function Hero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [blobPosition, setBlobPosition] = useState({ x: 0, y: 0 });
   const [isMouseMoving, setIsMouseMoving] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const blobRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number>();
   const mouseMoveTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || "ontouchstart" in window);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Initialize blob position on mount
   useEffect(() => {
@@ -55,10 +66,11 @@ export function Hero() {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
 
-        // Hide blob after mouse stops moving for 500ms
+        // Hide blob after mouse stops moving (0.5s desktop, 3s mobile)
+        const timeout = isMobile ? 3000 : 500;
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
-        }, 8000);
+        }, timeout);
       }
     };
 
@@ -79,10 +91,10 @@ export function Hero() {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
 
-        // Hide blob after touch stops for 25000ms (25 seconds for mobile)
+        // Hide blob after touch stops (3 seconds for mobile)
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
-        }, 25000);
+        }, 3000);
       }
     };
 
@@ -100,10 +112,10 @@ export function Hero() {
         if (mouseMoveTimeoutRef.current) {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
-        // Set initial timeout to keep blob visible for 25 seconds
+        // Set initial timeout to keep blob visible (3 seconds for mobile)
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
-        }, 25000);
+        }, 3000);
       }
     };
 
@@ -112,11 +124,11 @@ export function Hero() {
       if (mouseMoveTimeoutRef.current) {
         clearTimeout(mouseMoveTimeoutRef.current);
       }
-      // Keep blob visible much longer on mobile after touch ends (25 seconds)
+      // Keep blob visible on mobile after touch ends (3 seconds)
       // This gives time for the user to see the blob even after quick touch
       mouseMoveTimeoutRef.current = setTimeout(() => {
         setIsMouseMoving(false);
-      }, 25000);
+      }, 3000);
     };
 
     const section = sectionRef.current;
@@ -203,7 +215,9 @@ export function Hero() {
           opacity: isMouseMoving ? 1 : 0,
           transition: isMouseMoving
             ? "opacity 0.3s ease-out, transform 0.1s linear"
-            : "opacity 5s ease-out, transform 0.1s linear",
+            : isMobile
+            ? "opacity 2s ease-out, transform 0.1s linear"
+            : "opacity 0.5s ease-out, transform 0.1s linear",
         }}
       >
         <div className="blob-container">
