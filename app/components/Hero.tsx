@@ -27,7 +27,7 @@ export function Hero() {
   // Detect mobile device
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768 || "ontouchstart" in window);
+      setIsMobile(window.innerWidth < 992 || "ontouchstart" in window);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -232,7 +232,7 @@ export function Hero() {
             <Title />
           </div>
 
-          <p className="text-gray-400 mb-10 max-w-2xl text-[1.25rem]">
+          <p className="text-gray-400 mb-10 max-w-2xl text-[1rem] md:text-[1.25rem]">
             Where pixel-perfect design meets clean code. I create digital
             experiences that not only look stunning but perform flawlessly
             across every device.
@@ -256,7 +256,7 @@ export function Hero() {
           <button
             type="button"
             onClick={scrollToProjects}
-            className=" mt-20 flex items-center w-full justify-center gap-2 text-gray-500"
+            className=" mt-20 flex items-center w-full justify-center gap-2 text-gray-500 hidden md:flex"
             aria-label="Scroll down"
           >
             <p className="text-gray-500">DIVE IN</p>
@@ -264,10 +264,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div
-        className="absolute bottom-0 lg:bottom-[-10px] w-full flex items-center justify-center"
-        style={{ zIndex: 100 }}
-      >
+      <div className="absolute bottom-0 lg:bottom-[-10px] w-full flex items-center justify-center z-10">
         <Image
           src="/whale.png"
           alt="Portfolio Sketches"

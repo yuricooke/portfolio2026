@@ -2,12 +2,14 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 export function About() {
   return (
-    <section id="about" className="py-20 px-6 bg-gray-50">
+    <section id="about" className="py-20 px-6 bg-gray-50 dark:bg-slate-800 ">
       <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-12 items-start">
           <div>
-            <h2 className="mb-6 text-blue-950">About Me</h2>
-            <div className="space-y-4 text-gray-700">
+            <h2 className="mb-6 text-gray-700 dark:text-gray-300 text-3xl leading-tight title">
+              About Me
+            </h2>
+            <div className="space-y-4 text-gray-700 dark:text-gray-300">
               <p>
                 I'm a passionate front-end developer and UI/UX designer with a
                 keen eye for detail and a love for creating seamless user
@@ -45,5 +47,3 @@ export function About() {
     </section>
   );
 }
-
-
