@@ -49,9 +49,11 @@ export function Skills() {
   return (
     <section id="skills" className="py-20 px-6 bg-white">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="mb-4 text-blue-950">Skills &amp; Expertise</h2>
-          <p className="text-gray-700 max-w-2xl mx-auto">
+        <div className=" mb-16">
+          <h2 className="mb-4 text-blue-950 text-3xl leading-tight title">
+            &lt;Skills /&gt;
+          </h2>
+          <p className="text-gray-700 max-w-2xl ">
             A comprehensive skill set spanning both development and design,
             enabling me to bridge the gap between aesthetics and functionality.
           </p>
@@ -88,5 +90,3 @@ export function Skills() {
     </section>
   );
 }
-
-

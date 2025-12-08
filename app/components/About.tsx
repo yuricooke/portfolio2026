@@ -4,12 +4,12 @@ export function About() {
   return (
     <section id="about" className="py-20 px-6 bg-gray-50 dark:bg-slate-800 ">
       <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div>
+        <div className="grid md:grid-cols-3 gap-12 items-start">
+          <div className="col-span-2">
             <h2 className="mb-6 text-gray-700 dark:text-gray-300 text-3xl leading-tight title">
-              About Me
+              &lt;About Me /&gt;
             </h2>
-            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+            <div className="text-md space-y-6 text-gray-700 dark:text-gray-300 pr-20">
               <p>
                 I'm a passionate front-end developer and UI/UX designer with a
                 keen eye for detail and a love for creating seamless user
@@ -31,10 +31,10 @@ export function About() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative col-span-1">
             <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1546514714-df0ccc50d7bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZWIlMjBkZXZlbG9wZXIlMjB3b3Jrc3BhY2V8ZW58MXx8fHwxNzY0NTU0MDM0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                src="/Cooke_Yuri.jpg"
                 alt="Workspace"
                 className="w-full h-full object-cover"
               />

@@ -75,9 +75,11 @@ export function Projects() {
   return (
     <section id="projects" className="py-20 px-6 bg-gray-50">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="mb-4 text-blue-950">Featured Projects</h2>
-          <p className="text-gray-700 max-w-2xl mx-auto">
+        <div className="mb-16">
+          <h2 className="mb-4 text-blue-950 text-3xl leading-tight title">
+            &lt;Featured Projects /&gt;
+          </h2>
+          <p className="text-gray-700 max-w-2xl ">
             A selection of projects that showcase my skills in front-end
             development and UI/UX design.
           </p>
@@ -153,5 +155,3 @@ export function Projects() {
     </section>
   );
 }
-
-

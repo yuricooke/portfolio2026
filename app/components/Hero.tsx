@@ -232,11 +232,13 @@ export function Hero() {
             <Title />
           </div>
 
-          <p className="text-gray-400 mb-10 max-w-2xl text-[1rem] md:text-[1.25rem]">
-            Where pixel-perfect design meets clean code. I create digital
-            experiences that not only look stunning but perform flawlessly
-            across every device.
-          </p>
+          <p
+            className="text-gray-400 mb-10 max-w-2xl text-[1rem] md:text-[1.25rem]"
+            dangerouslySetInnerHTML={{
+              __html:
+                "Where pixel-perfect design meets clean code.<br /> Creating digital experiences that not only look stunning but perform flawlessly across every device.",
+            }}
+          />
 
           <div className="flex gap-4 flex-wrap">
             <button
