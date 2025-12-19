@@ -386,7 +386,7 @@ export function Hero() {
             </a>
           </div>
           <div
-            className="mt-20 flex items-center w-full justify-center gap-2 hidden md:flex relative"
+            className="mt-20 flex items-center w-full justify-center gap-2 relative"
             style={{ zIndex: 1000 }}
           >
             <TypewriterText />

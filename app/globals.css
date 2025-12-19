@@ -14,7 +14,7 @@ body {
 .hero-title {
   font-family: "plantin", serif;
   font-weight: 600;
-  font-size: clamp(2rem, 8vw, 7rem);
+  font-size: clamp(1.5rem, 7.5vw, 7rem);
   line-height: 1.1;
   letter-spacing: 0.05em;
   width: 100%;

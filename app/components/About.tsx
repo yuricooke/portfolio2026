@@ -2,14 +2,14 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 export function About() {
   return (
-    <section id="about" className="py-20 px-6 bg-gray-50 dark:bg-slate-800 ">
+    <section id="about" className="py-20 px-6 bg-slate-800 ">
       <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-3 gap-12 items-start">
-          <div className="col-span-2">
-            <h2 className="mb-6 text-gray-700 dark:text-gray-300 text-3xl leading-tight title">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
+          <div className="order-2 md:order-1 md:col-span-2">
+            <h2 className="mb-6 text-gray-300 text-3xl leading-tight title">
               &lt;About Me /&gt;
             </h2>
-            <div className="text-md space-y-6 text-gray-700 dark:text-gray-300 pr-20">
+            <div className="text-md space-y-6 text-gray-300 md:pr-20">
               <p>
                 I'm a passionate front-end developer and UI/UX designer with a
                 keen eye for detail and a love for creating seamless user
@@ -31,7 +31,7 @@ export function About() {
             </div>
           </div>
 
-          <div className="relative col-span-1">
+          <div className="relative order-1 md:order-2 md:col-span-1">
             <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
               <ImageWithFallback
                 src="/Cooke_Yuri.jpg"
@@ -39,8 +39,6 @@ export function About() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-teal-100 rounded-2xl -z-10" />
-            <div className="absolute -top-6 -left-6 w-32 h-32 bg-blue-100 rounded-2xl -z-10" />
           </div>
         </div>
       </div>
