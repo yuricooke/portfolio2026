@@ -47,11 +47,12 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-gray-200 shadow-sm transition-transform duration-300 ease-in-out ${
+      className={`fixed top-0 w-full py-8 transition-transform duration-300 ease-in-out ${
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
+      style={{ zIndex: 99999 }}
     >
-      <div className="max-w-6xl mx-auto px-2">
+      <div className="max-w-6xl mx-auto rounded-3xl bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm px-6">
         <div className="flex items-center justify-between h-16">
           <Link
             href="/"
