@@ -14,6 +14,136 @@ function Title() {
   );
 }
 
+function AirportPanelLetter({
+  targetLetter,
+  isActive,
+  delay,
+  totalLetters,
+}: {
+  targetLetter: string;
+  isActive: boolean;
+  delay: number;
+  totalLetters: number;
+}) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 /-";
+  const [currentChar, setCurrentChar] = useState(" ");
+  const intervalRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    // Clear any existing intervals/timeouts
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    if (!isActive) {
+      // Keep showing the target letter when animation stops - never disappear
+      const targetIndex = chars.indexOf(targetLetter.toUpperCase());
+      if (targetLetter === " ") {
+        setCurrentChar(" ");
+      } else {
+        setCurrentChar(targetIndex !== -1 ? chars[targetIndex] : targetLetter);
+      }
+      return;
+    }
+
+    // Start rolling after delay (cascading effect)
+    timeoutRef.current = setTimeout(() => {
+      let iterations = 0;
+      // All letters should finish around the same time, but start at different times
+      const baseIterations = 20;
+      const maxIterations = baseIterations + Math.floor(Math.random() * 10);
+      const targetIndex = chars.indexOf(targetLetter.toUpperCase());
+
+      intervalRef.current = setInterval(() => {
+        iterations++;
+        const randomIndex = Math.floor(Math.random() * chars.length);
+        setCurrentChar(chars[randomIndex]);
+
+        if (iterations >= maxIterations) {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+          }
+          if (targetLetter === " ") {
+            setCurrentChar(" ");
+          } else {
+            setCurrentChar(
+              targetIndex !== -1 ? chars[targetIndex] : targetLetter
+            );
+          }
+        }
+      }, 60);
+    }, delay * 100); // 100ms delay between each letter start
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isActive, targetLetter, delay, totalLetters]);
+
+  return <span className="inline-block airport-letter">{currentChar}</span>;
+}
+
+function TypewriterText() {
+  const words = [
+    "Frontend",
+    "UI/UX",
+    "Design",
+    "Web Developer",
+    "Creativity",
+    "ART",
+    "React",
+    "Next.js",
+    "Tailwind",
+    "TypeScript",
+    "JavaScript",
+    "HTML",
+    "CSS",
+  ];
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    // Start animation
+    setIsAnimating(true);
+
+    // After animation completes (~3.5s), keep word visible for 8 seconds, then move to next
+    const timeout = setTimeout(() => {
+      setIsAnimating(false);
+      // Wait 8 seconds with word formed, then change to next word
+      setTimeout(() => {
+        setCurrentWordIndex((prev) => (prev + 1) % words.length);
+      }, 3500);
+    }, 3500); // Time for all letters to finish forming
+
+    return () => clearTimeout(timeout);
+  }, [currentWordIndex, words.length]);
+
+  const currentWord = words[currentWordIndex];
+  const letters = currentWord.split("");
+
+  return (
+    <span className="inline-flex gap-0.5" style={{ zIndex: 1000 }}>
+      {letters.map((letter, index) => (
+        <AirportPanelLetter
+          key={`${currentWordIndex}-${index}`}
+          targetLetter={letter}
+          isActive={isAnimating}
+          delay={index}
+          totalLetters={letters.length}
+        />
+      ))}
+    </span>
+  );
+}
+
 export function Hero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [blobPosition, setBlobPosition] = useState({ x: 0, y: 0 });
@@ -66,8 +196,8 @@ export function Hero() {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
 
-        // Hide blob after mouse stops moving (0.5s desktop, 3s mobile)
-        const timeout = isMobile ? 3000 : 500;
+        // Hide blob after mouse stops moving (4s desktop, 3s mobile)
+        const timeout = isMobile ? 3000 : 4000;
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
         }, timeout);
@@ -205,8 +335,8 @@ export function Hero() {
         ref={blobRef}
         className="absolute pointer-events-none"
         style={{
-          width: "400px",
-          height: "400px",
+          width: isMobile ? "400px" : "1200px",
+          height: isMobile ? "400px" : "1200px",
           left: `${blobPosition.x}px`,
           top: `${blobPosition.y}px`,
           transform: "translate(-50%, -50%)",
@@ -255,27 +385,25 @@ export function Hero() {
               Get in Touch
             </a>
           </div>
-          <button
-            type="button"
-            onClick={scrollToProjects}
-            className=" mt-20 flex items-center w-full justify-center gap-2 text-gray-500 hidden md:flex"
-            aria-label="Scroll down"
+          <div
+            className="mt-20 flex items-center w-full justify-center gap-2 hidden md:flex relative"
+            style={{ zIndex: 1000 }}
           >
-            <p className="text-gray-500">DIVE IN</p>
-          </button>
+            <TypewriterText />
+          </div>
         </div>
       </div>
 
-      <div className="absolute bottom-0 lg:bottom-[-10px] w-full flex items-center justify-center z-10">
+      {/* <div className="absolute bottom-0 lg:bottom-[-10px] w-full flex items-end justify-end pe-6 z-10">
         <Image
-          src="/whale.png"
+          src="/whale-big.png"
           alt="Portfolio Sketches"
-          width={800}
-          height={400}
-          className="object-contain ml-10 opacity-80"
+          width={300}
+          height={300}
+          className="object-contain mr-10"
           priority
         />
-      </div>
+      </div> */}
     </section>
   );
 }

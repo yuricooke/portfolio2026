@@ -69,6 +69,16 @@ const projects = [
     liveUrl: "#",
     githubUrl: "#",
   },
+  {
+    id: "hellstrom",
+    title: "HELLSTRÖM",
+    description:
+      "Modern culinary website redesign for HELLSTRÖM, featuring recipe pages, journal articles, and an elegant user experience focused on food and cooking inspiration.",
+    image: "/hellstrom.png",
+    tags: ["Web Design", "Next.js", "UI/UX Design", "Responsive Design"],
+    liveUrl: "https://www.hellstrom.no",
+    githubUrl: "#",
+  },
 ];
 
 export function Projects() {
@@ -103,7 +113,7 @@ export function Projects() {
 
               <div className="p-6">
                 <Link href={`/project/${project.id}`}>
-                  <h3 className="mb-2 text-blue-950 hover:text-teal-500 transition-colors">
+                  <h3 className="mb-2 text-blue-950 group-hover:text-teal-500 transition-colors font-bold text-xl">
                     {project.title}
                   </h3>
                 </Link>

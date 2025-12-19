@@ -194,6 +194,43 @@ const projectsData = [
       infrastructure: ["AWS", "Docker", "Nginx"],
     },
   },
+  {
+    id: "hellstrom",
+    title: "HELLSTRÖM",
+    description:
+      "Modern culinary website redesign for HELLSTRÖM, featuring recipe pages, journal articles, and an elegant user experience focused on food and cooking inspiration.",
+    image: "/www.hellstrom.no_.png",
+    tags: ["Web Design", "Next.js", "UI/UX Design", "Responsive Design"],
+    liveUrl: "https://www.hellstrom.no",
+    githubUrl: "#",
+    date: "December 2024",
+    challenge:
+      "Creating a modern, elegant website that showcases recipes, journal articles, and culinary content while maintaining excellent performance and user experience across all devices.",
+    solution:
+      "Designed and developed a responsive website with a clean aesthetic, intuitive navigation, and optimized content presentation. Implemented recipe pages, journal articles, and a newsletter signup system with a focus on visual storytelling.",
+    features: [
+      "Recipe pages with detailed instructions",
+      "Journal article layout with rich content",
+      "Newsletter signup integration",
+      "Responsive design for all devices",
+      "Clean, modern UI with elegant typography",
+      "Image galleries and visual content",
+      "Social media integration",
+      "Search functionality",
+    ],
+    technologies: {
+      frontend: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
+      design: ["Figma", "UI/UX Design"],
+      cms: ["Content Management"],
+      tools: ["Git", "Responsive Design"],
+    },
+    galleryImages: [
+      "/www.hellstrom.no_.png",
+      "/www.hellstrom.no_journal.png",
+      "/prototype.hellstrom.k8s.seeds.no_test-pages_journal-article-page.php.png",
+      "/prototype.hellstrom.k8s.seeds.no_test-pages_recipe-single-page.php.png",
+    ],
+  },
 ] as const;
 
 export function ProjectDetail() {
@@ -238,6 +275,27 @@ export function ProjectDetail() {
             className="w-full h-full object-cover"
           />
         </div>
+
+        {/* Gallery Images - if available */}
+        {"galleryImages" in project && project.galleryImages && (
+          <div className="mb-12">
+            <h3 className="mb-6 text-blue-950">Project Screenshots</h3>
+            <div className="space-y-6 max-h-[800px] overflow-y-auto pr-2">
+              {project.galleryImages.map((img, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl overflow-hidden shadow-lg border border-gray-200"
+                >
+                  <ImageWithFallback
+                    src={img}
+                    alt={`${project.title} screenshot ${index + 1}`}
+                    className="w-full h-auto object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Header */}
         <div className="mb-12">
@@ -314,25 +372,21 @@ export function ProjectDetail() {
         <div className="bg-blue-950 text-white p-8 rounded-2xl">
           <h3 className="mb-6">Technologies Used</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(project.technologies).map(
-              ([category, techs]) => (
-                <div key={category}>
-                  <h4 className="text-teal-300 mb-3 capitalize">{category}</h4>
-                  <ul className="space-y-2">
-                    {(techs as readonly string[]).map((tech) => (
-                      <li key={tech} className="text-blue-100">
-                        {tech}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ),
-            )}
+            {Object.entries(project.technologies).map(([category, techs]) => (
+              <div key={category}>
+                <h4 className="text-teal-300 mb-3 capitalize">{category}</h4>
+                <ul className="space-y-2">
+                  {(techs as readonly string[]).map((tech) => (
+                    <li key={tech} className="text-blue-100">
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-

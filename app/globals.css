@@ -103,3 +103,21 @@ body {
     background-color: #e40303; /* Red - back to start */
   }
 }
+
+/* Airport Panel Style */
+.airport-letter {
+  display: inline-block;
+  min-width: 0.6em;
+  text-align: center;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 900;
+  color: #fafafa;
+  font-size: 3rem;
+  transition: all 0.1s ease;
+}
+
+@media (min-width: 768px) {
+  .airport-letter {
+    font-size: 6rem;
+  }
+}
