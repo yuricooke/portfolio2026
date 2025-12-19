@@ -196,9 +196,9 @@ const projectsData = [
   },
   {
     id: "hellstrom",
-    title: "HELLSTRÖM",
+    title: "Hellstrøm",
     description:
-      "Modern culinary website redesign for HELLSTRÖM, featuring recipe pages, journal articles, and an elegant user experience focused on food and cooking inspiration.",
+      "Modern culinary website redesign for Hellstrøm, featuring recipe pages, journal articles, and an elegant user experience focused on food and cooking inspiration.",
     image: "/www.hellstrom.no_.png",
     tags: ["Web Design", "Next.js", "UI/UX Design", "Responsive Design"],
     liveUrl: "https://www.hellstrom.no",
@@ -229,6 +229,115 @@ const projectsData = [
       "/www.hellstrom.no_journal.png",
       "/prototype.hellstrom.k8s.seeds.no_test-pages_journal-article-page.php.png",
       "/prototype.hellstrom.k8s.seeds.no_test-pages_recipe-single-page.php.png",
+    ],
+  },
+  {
+    id: "jotron",
+    title: "Jotron",
+    description:
+      "Corporate website for Jotron, a world-leading manufacturer of communication products and systems for land, sea, and air applications. Built with React, featuring modern design and comprehensive product showcases.",
+    image: "/jotron1.png",
+    tags: ["React", "Web Design", "UI/UX Design", "Corporate Website"],
+    liveUrl: "https://www.jotron.com",
+    githubUrl: "#",
+    date: "2024",
+    challenge:
+      "Creating a professional corporate website that effectively communicates Jotron's expertise in communication systems for maritime, aviation, and land applications while showcasing their extensive product portfolio and solutions.",
+    solution:
+      "Developed a modern, responsive website using React that highlights Jotron's products, solutions, and company values. Implemented intuitive navigation, comprehensive product showcases, and engaging content sections that reflect the company's commitment to safety and innovation.",
+    features: [
+      "Product catalog with detailed specifications",
+      "Solutions showcase for ATC, Coastal, Maritime, and Energy sectors",
+      "Company information and values presentation",
+      "News and insights section",
+      "Career opportunities page",
+      "Sustainability and ESG information",
+      "Responsive design for all devices",
+      "Modern UI with professional aesthetics",
+    ],
+    technologies: {
+      frontend: ["React", "JavaScript", "CSS", "HTML"],
+      design: ["UI/UX Design", "Responsive Design"],
+      tools: ["Git", "Modern Web Standards"],
+    },
+    galleryImages: [
+      "/jotron1.png",
+      "/jotron2.png",
+      "/jotron3.png",
+      "/jotron4.png",
+      "/jotron5.png",
+    ],
+  },
+  {
+    id: "logopadie",
+    title: "Logopädie",
+    description:
+      "Multilingual speech therapy practice website for Speech Therapy Hamburg. Complete visual identity design and development using Next.js and Tailwind CSS, featuring a modern, welcoming interface for a multilingual therapy practice.",
+    image: "/twoarebetter-1.jpg",
+    tags: ["Next.js", "Tailwind CSS", "Visual Identity", "UI/UX Design"],
+    liveUrl: "https://www.speechtherapyhamburg.com",
+    githubUrl: "#",
+    date: "2024",
+    challenge:
+      "Creating a welcoming and professional website for a multilingual speech therapy practice that effectively communicates the practice's services, philosophy, and expertise while appealing to a diverse, multilingual clientele in Hamburg.",
+    solution:
+      "Designed a complete visual identity with a modern, approachable aesthetic using a palette of light beige, blues, and purple accents. Developed a responsive website with Next.js and Tailwind CSS that showcases therapy services, practice information, and contact details in an intuitive, multilingual-friendly interface.",
+    features: [
+      "Complete visual identity design including logo and brand colors",
+      "Multilingual navigation and content support",
+      "Therapy services showcase with detailed descriptions",
+      "Practice room gallery with image carousel",
+      "About me section with professional qualifications",
+      "Partnerships and certifications display",
+      "Contact form and location information",
+      "Responsive design optimized for all devices",
+      "Modern UI with welcoming, professional aesthetics",
+    ],
+    technologies: {
+      frontend: ["Next.js", "React", "Tailwind CSS", "JavaScript"],
+      design: ["Visual Identity Design", "UI/UX Design", "Brand Design"],
+      tools: ["Git", "Responsive Design", "Modern Web Standards"],
+    },
+    galleryImages: ["/twoarebetter-1.jpg", "/sth.png"],
+  },
+  {
+    id: "hello-sales",
+    title: "Hello Sales",
+    description:
+      "CRM platform designed for physical stores and services, integrated with WhatsApp. Easy-to-use system that increases sales by up to 30% through intelligent contact management and ready-to-use campaigns. Built with Angular and custom frontend design.",
+    image: "/hellosales-1.png",
+    tags: ["Angular", "Frontend Design", "CRM", "UI/UX Design"],
+    liveUrl: "https://hellosales.app",
+    githubUrl: "#",
+    date: "2024-2025",
+    challenge:
+      "Creating an intuitive CRM platform specifically designed for physical retail stores and services that integrates seamlessly with WhatsApp, the primary communication channel for Brazilian retailers. The system needed to be extremely easy to use for sales teams while providing powerful campaign management and analytics for store owners.",
+    solution:
+      "Developed a comprehensive CRM platform using Angular with a custom frontend design that focuses on simplicity and user experience. Implemented intelligent contact scheduling, ready-to-use sales campaigns, WhatsApp integration, and real-time analytics. The design emphasizes ease of use with a clean, modern interface that sales teams can adopt immediately.",
+    features: [
+      "Intelligent contact agenda that suggests who to contact, when, and why",
+      "Ready-to-use sales campaigns that can be activated instantly",
+      "WhatsApp integration without changing phone numbers",
+      "Real-time analytics and performance indicators",
+      "User hierarchy and team management",
+      "Cashback system integration",
+      "Campaign results tracking and reporting",
+      "Mobile-first responsive design",
+      "Login and password recovery system",
+      "Dashboard with daily progress tracking",
+    ],
+    technologies: {
+      frontend: ["Angular", "TypeScript", "CSS", "HTML"],
+      design: ["Frontend Design", "UI/UX Design", "Custom Design System"],
+      tools: ["Git", "Responsive Design", "Modern Web Standards"],
+    },
+    galleryImages: [
+      "/hellosales-1.png",
+      "/hellosales-2.png",
+      "/hellosales-3.png",
+      "/hellosales-4.png",
+      "/hellosales-5.png",
+      "/hellosales-6.png",
     ],
   },
 ] as const;
@@ -331,7 +440,12 @@ export function ProjectDetail() {
             </a>
             <a
               href={project.githubUrl}
-              className="inline-flex items-center gap-2 border-2 border-blue-900 text-blue-900 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors"
+              className="inline-flex items-center gap-2 border-2 border-blue-900 text-blue-900 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors opacity-30 pointer-events-none cursor-not-allowed"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              aria-disabled="true"
             >
               <Github size={20} />
               View Code

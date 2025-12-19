@@ -4,6 +4,46 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 const projects = [
   {
+    id: "hellstrom",
+    title: "Hellstrøm",
+    description:
+      "Modern culinary website redesign for Hellstrøm, featuring recipe pages, journal articles, and an elegant user experience focused on food and cooking inspiration.",
+    image: "/hellstrom.png",
+    tags: ["Web Design", "Next.js", "UI/UX Design", "Responsive Design"],
+    liveUrl: "https://www.hellstrom.no",
+    githubUrl: "#",
+  },
+  {
+    id: "jotron",
+    title: "Jotron",
+    description:
+      "Corporate website for Jotron, a world-leading manufacturer of communication products and systems for land, sea, and air applications. Built with React, featuring modern design and comprehensive product showcases.",
+    image: "/jotron1.png",
+    tags: ["React", "Web Design", "UI/UX Design", "Corporate Website"],
+    liveUrl: "https://www.jotron.com",
+    githubUrl: "#",
+  },
+  {
+    id: "logopadie",
+    title: "Logopädie",
+    description:
+      "Multilingual speech therapy practice website for Speech Therapy Hamburg. Complete visual identity design and development using Next.js and Tailwind CSS, featuring a modern, welcoming interface for a multilingual therapy practice.",
+    image: "/twoarebetter-1.jpg",
+    tags: ["Next.js", "Tailwind CSS", "Visual Identity", "UI/UX Design"],
+    liveUrl: "https://www.speechtherapyhamburg.com",
+    githubUrl: "#",
+  },
+  {
+    id: "hello-sales",
+    title: "Hello Sales",
+    description:
+      "CRM platform designed for physical stores and services, integrated with WhatsApp. Easy-to-use system that increases sales by up to 30% through intelligent contact management and ready-to-use campaigns. Built with Angular and custom frontend design.",
+    image: "/hellosales-1.png",
+    tags: ["Angular", "Frontend Design", "CRM", "UI/UX Design"],
+    liveUrl: "https://hellosales.app",
+    githubUrl: "#",
+  },
+  {
     id: "ecommerce-platform",
     title: "E-Commerce Platform",
     description:
@@ -69,27 +109,17 @@ const projects = [
     liveUrl: "#",
     githubUrl: "#",
   },
-  {
-    id: "hellstrom",
-    title: "HELLSTRÖM",
-    description:
-      "Modern culinary website redesign for HELLSTRÖM, featuring recipe pages, journal articles, and an elegant user experience focused on food and cooking inspiration.",
-    image: "/hellstrom.png",
-    tags: ["Web Design", "Next.js", "UI/UX Design", "Responsive Design"],
-    liveUrl: "https://www.hellstrom.no",
-    githubUrl: "#",
-  },
 ];
 
 export function Projects() {
   return (
-    <section id="projects" className="py-20 px-6 bg-gray-50">
+    <section id="projects" className="py-20 px-6 bg-gray-900 text-white">
       <div className="max-w-6xl mx-auto">
         <div className="mb-16">
-          <h2 className="mb-4 text-blue-950 text-3xl leading-tight title">
+          <h2 className="mb-4 text-white text-3xl leading-tight title">
             &lt;Featured Projects /&gt;
           </h2>
-          <p className="text-gray-700 max-w-2xl ">
+          <p className="text-white max-w-2xl ">
             A selection of projects that showcase my skills in front-end
             development and UI/UX design.
           </p>
@@ -149,9 +179,13 @@ export function Projects() {
                     </a>
                     <a
                       href={project.githubUrl}
-                      className="text-blue-900 hover:text-teal-500 transition-colors"
+                      className="text-blue-900 hover:text-teal-500 transition-colors opacity-30 pointer-events-none cursor-not-allowed"
                       title="View Code"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      aria-disabled="true"
                     >
                       <Github size={18} />
                     </a>

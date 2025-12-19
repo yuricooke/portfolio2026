@@ -47,7 +47,7 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 w-full py-8 transition-transform duration-300 ease-in-out ${
+      className={`fixed top-0 w-full pt-4 transition-transform duration-300 ease-in-out ${
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
       style={{ zIndex: 99999 }}
