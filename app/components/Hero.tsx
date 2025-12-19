@@ -335,8 +335,8 @@ export function Hero() {
         ref={blobRef}
         className="absolute pointer-events-none"
         style={{
-          width: isMobile ? "400px" : "1200px",
-          height: isMobile ? "400px" : "1200px",
+          width: isMobile ? "800px" : "1200px",
+          height: isMobile ? "800px" : "1200px",
           left: `${blobPosition.x}px`,
           top: `${blobPosition.y}px`,
           transform: "translate(-50%, -50%)",
