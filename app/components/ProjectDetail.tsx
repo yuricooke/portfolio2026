@@ -270,7 +270,7 @@ export function ProjectDetail() {
         {"galleryImages" in project && project.galleryImages && (
           <div className="mb-12">
             <h3 className="mb-6 text-blue-950">Project Screenshots</h3>
-            <div className="space-y-6 max-h-[800px] overflow-y-auto pr-2">
+            <div className="space-y-6">
               {project.galleryImages.map((img, index) => (
                 <div
                   key={index}
