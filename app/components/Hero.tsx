@@ -14,21 +14,57 @@ function Title() {
   );
 }
 
+// Different fonts for each letter - they will interchange
+const FONTS = [
+  "Helvetica, Arial, sans-serif",
+  "Georgia, serif",
+  "'Courier New', monospace",
+  "Verdana, sans-serif",
+  "'Times New Roman', serif",
+  "Impact, sans-serif",
+  "'Trebuchet MS', sans-serif",
+  "'Comic Sans MS', cursive",
+  "'Arial Black', sans-serif",
+  "'Lucida Console', monospace",
+];
+
 function AirportPanelLetter({
   targetLetter,
   isActive,
   delay,
   totalLetters,
+  letterIndex,
 }: {
   targetLetter: string;
   isActive: boolean;
   delay: number;
   totalLetters: number;
+  letterIndex: number;
 }) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 /-";
   const [currentChar, setCurrentChar] = useState(" ");
+  const [currentFontIndex, setCurrentFontIndex] = useState(
+    letterIndex % FONTS.length
+  );
   const intervalRef = useRef<NodeJS.Timeout>();
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const fontChangeIntervalRef = useRef<NodeJS.Timeout>();
+
+  // Change font periodically for each letter
+  useEffect(() => {
+    // Each letter changes font at different intervals based on its index
+    const fontChangeInterval = 2000 + letterIndex * 300; // Stagger font changes
+
+    fontChangeIntervalRef.current = setInterval(() => {
+      setCurrentFontIndex((prev) => (prev + 1) % FONTS.length);
+    }, fontChangeInterval);
+
+    return () => {
+      if (fontChangeIntervalRef.current) {
+        clearInterval(fontChangeIntervalRef.current);
+      }
+    };
+  }, [letterIndex]);
 
   useEffect(() => {
     // Clear any existing intervals/timeouts
@@ -88,16 +124,25 @@ function AirportPanelLetter({
     };
   }, [isActive, targetLetter, delay, totalLetters]);
 
-  return <span className="inline-block airport-letter">{currentChar}</span>;
+  return (
+    <span
+      className="inline-block airport-letter"
+      style={{ fontFamily: FONTS[currentFontIndex] }}
+    >
+      {currentChar}
+    </span>
+  );
 }
 
 function TypewriterText() {
   const words = [
     "Frontend",
+    "Barcelona",
     "UI/UX",
     "Design",
     "Web Developer",
     "Creativity",
+    "Rio de Janeiro",
     "ART",
     "React",
     "Next.js",
@@ -138,6 +183,7 @@ function TypewriterText() {
           isActive={isAnimating}
           delay={index}
           totalLetters={letters.length}
+          letterIndex={index}
         />
       ))}
     </span>
