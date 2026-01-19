@@ -190,14 +190,188 @@ function TypewriterText() {
   );
 }
 
+// Simplified particle system - optimized for performance
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  life: number;
+  hue: number;
+}
+
+function MagicalParticles({
+  mousePosition,
+  isMouseMoving,
+  isMobile,
+}: {
+  mousePosition: { x: number; y: number };
+  isMouseMoving: boolean;
+  isMobile: boolean;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particlesRef = useRef<Particle[]>([]);
+  const mouseRef = useRef({ x: mousePosition.x, y: mousePosition.y });
+  const prevMouseRef = useRef({ x: mousePosition.x, y: mousePosition.y });
+  const animationFrameRef = useRef<number>();
+
+  // Update mouse position
+  useEffect(() => {
+    prevMouseRef.current = { ...mouseRef.current };
+    mouseRef.current = { x: mousePosition.x, y: mousePosition.y };
+  }, [mousePosition]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
+
+    const resizeCanvas = () => {
+      if (canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+      }
+    };
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    const particles = particlesRef.current;
+    const maxParticles = isMobile ? 15 : 25;
+
+    const createParticle = (x: number, y: number, vx: number, vy: number) => {
+      const hue = (Date.now() * 0.05 + Math.random() * 60) % 360;
+      // Create particles with 6 size variations: 1x, 2x, 3x, 4x, 5x, 6x
+      const rand = Math.random();
+      const sizeMultiplier = 
+        rand < 0.17 ? 1 : 
+        rand < 0.33 ? 2 : 
+        rand < 0.5 ? 3 : 
+        rand < 0.67 ? 4 : 
+        rand < 0.83 ? 5 : 6;
+      const baseSize = Math.random() * 15 + 10;
+      return {
+        x,
+        y,
+        // Increased spread: more random velocity variation
+        vx: vx * 1.5 + (Math.random() - 0.5) * 8,
+        vy: vy * 1.5 + (Math.random() - 0.5) * 8,
+        size: baseSize * sizeMultiplier, // Varied sizes: 10-25px, 20-50px, 30-75px, 40-100px, 50-125px, 60-150px
+        life: 1,
+        hue,
+      };
+    };
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (isMouseMoving) {
+        const dx = mouseRef.current.x - prevMouseRef.current.x;
+        const dy = mouseRef.current.y - prevMouseRef.current.y;
+        const speed = Math.sqrt(dx * dx + dy * dy);
+
+        // Create fewer, bigger particles with more spread
+        if (speed > 1 && particles.length < maxParticles) {
+          const particleCount = Math.min(Math.floor(speed / 8), 2);
+          for (let i = 0; i < particleCount; i++) {
+            const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 2; // Wider angle spread
+            const velocity = speed * 0.3 + Math.random() * 5; // More velocity variation
+            particles.push(
+              createParticle(
+                mouseRef.current.x + (Math.random() - 0.5) * 50, // More spread in initial position
+                mouseRef.current.y + (Math.random() - 0.5) * 50,
+                Math.cos(angle) * velocity,
+                Math.sin(angle) * velocity
+              )
+            );
+          }
+        }
+      }
+
+      // Update and draw particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+
+        // Update position
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Simple friction
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+
+        // Smoother, gentler attraction to mouse (only when particle is still visible enough)
+        // Stop attracting when life is low to avoid "blink" effect - increased threshold
+        if (isMouseMoving && p.life > 0.5) {
+          const dx = mouseRef.current.x - p.x;
+          const dy = mouseRef.current.y - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > 0 && dist < 200) {
+            // Much gentler force to avoid color flickering
+            const force = 0.03 / (dist * 0.01 + 1);
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+          }
+        }
+
+        // Update life (slower decay = particles last 1s longer)
+        p.life -= 0.008;
+
+        // Draw simple particle with glow
+        // Only draw if alpha is meaningful to avoid drawing invisible particles
+        const alpha = p.life * 0.6;
+        if (alpha > 0.05) {
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = `hsl(${p.hue}, 80%, 65%)`;
+          ctx.shadowBlur = p.size * 0.8;
+          ctx.shadowColor = `hsl(${p.hue}, 100%, 70%)`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Remove dead particles (also remove if too transparent to avoid flicker)
+        if (p.life <= 0 || alpha <= 0.05 || p.x < -100 || p.x > canvas.width + 100 || p.y < -100 || p.y > canvas.height + 100) {
+          particles.splice(i, 1);
+        }
+      }
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isMouseMoving, isMobile]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        zIndex: 2,
+        opacity: isMouseMoving ? 1 : 0,
+        transition: "opacity 0.5s ease-out",
+      }}
+    />
+  );
+}
+
 export function Hero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [blobPosition, setBlobPosition] = useState({ x: 0, y: 0 });
   const [isMouseMoving, setIsMouseMoving] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  const blobRef = useRef<HTMLDivElement>(null);
-  const animationFrameRef = useRef<number>();
   const mouseMoveTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Detect mobile device
@@ -210,11 +384,11 @@ export function Hero() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Initialize blob position on mount
+  // Initialize mouse position on mount
   useEffect(() => {
     if (sectionRef.current) {
       const rect = sectionRef.current.getBoundingClientRect();
-      setBlobPosition({
+      setMousePosition({
         x: rect.width / 2,
         y: rect.height / 2,
       });
@@ -234,15 +408,12 @@ export function Hero() {
           y: e.clientY - rect.top,
         });
 
-        // Show blob when mouse moves
         setIsMouseMoving(true);
 
-        // Clear existing timeout
         if (mouseMoveTimeoutRef.current) {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
 
-        // Hide blob after mouse stops moving (4s desktop, 3s mobile)
         const timeout = isMobile ? 3000 : 4000;
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
@@ -259,15 +430,12 @@ export function Hero() {
           y: touch.clientY - rect.top,
         });
 
-        // Show blob when touch moves
         setIsMouseMoving(true);
 
-        // Clear existing timeout
         if (mouseMoveTimeoutRef.current) {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
 
-        // Hide blob after touch stops (3 seconds for mobile)
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
         }, 3000);
@@ -282,13 +450,10 @@ export function Hero() {
           x: touch.clientX - rect.left,
           y: touch.clientY - rect.top,
         });
-        // Show blob immediately on touch start
         setIsMouseMoving(true);
-        // Clear any existing timeout
         if (mouseMoveTimeoutRef.current) {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
-        // Set initial timeout to keep blob visible (3 seconds for mobile)
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
         }, 3000);
@@ -296,12 +461,9 @@ export function Hero() {
     };
 
     const handleTouchEnd = () => {
-      // Clear existing timeout
       if (mouseMoveTimeoutRef.current) {
         clearTimeout(mouseMoveTimeoutRef.current);
       }
-      // Keep blob visible on mobile after touch ends (3 seconds)
-      // This gives time for the user to see the blob even after quick touch
       mouseMoveTimeoutRef.current = setTimeout(() => {
         setIsMouseMoving(false);
       }, 3000);
@@ -309,7 +471,6 @@ export function Hero() {
 
     const section = sectionRef.current;
     if (section) {
-      // Mouse events
       section.addEventListener("mousemove", handleMouseMove);
       section.addEventListener("mouseleave", () => {
         setIsMouseMoving(false);
@@ -318,7 +479,6 @@ export function Hero() {
         }
       });
 
-      // Touch events
       section.addEventListener("touchstart", handleTouchStart, {
         passive: true,
       });
@@ -340,43 +500,22 @@ export function Hero() {
         }
       };
     }
-  }, []);
-
-  // Smooth blob following animation
-  useEffect(() => {
-    const animate = () => {
-      setBlobPosition((prev) => {
-        const dx = mousePosition.x - prev.x;
-        const dy = mousePosition.y - prev.y;
-        // Smoother following with easing
-        const speed = isMouseMoving ? 0.12 : 0.05;
-        const newX = prev.x + dx * speed;
-        const newY = prev.y + dy * speed;
-
-        return {
-          x: newX,
-          y: newY,
-        };
-      });
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-
-    // Always animate for smooth transitions
-    animationFrameRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [mousePosition, isMouseMoving]);
+  }, [isMobile]);
 
   return (
     <section
       ref={sectionRef}
       className="min-h-screen flex justify-center bg-white px-6 relative overflow-hidden"
     >
-      {/* Animated Blob with effects */}
+      {/* Magical Particles Effect */}
+      <MagicalParticles
+        mousePosition={mousePosition}
+        isMouseMoving={isMouseMoving}
+        isMobile={isMobile}
+      />
+
+      {/* BACKUP: Animated Blob with effects (commented out) */}
+      {/* 
       <div
         ref={blobRef}
         className="absolute pointer-events-none"
@@ -400,6 +539,7 @@ export function Hero() {
           <div className="blob-window" />
         </div>
       </div>
+      */}
       <div className="max-w-6xl w-full pt-[8rem] relative z-10">
         <div className="text-left flex flex-col">
           {/* Title: FRONTÆNDESIGN */}
