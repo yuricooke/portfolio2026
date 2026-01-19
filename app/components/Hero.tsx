@@ -240,30 +240,28 @@ function MagicalParticles({
     window.addEventListener("resize", resizeCanvas);
 
     const particles = particlesRef.current;
-    const maxParticles = isMobile ? 8 : 25; // Much fewer particles on mobile
+    const maxParticles = isMobile ? 20 : 25; // More particles on mobile
 
     const createParticle = (x: number, y: number, vx: number, vy: number) => {
       const hue = (Date.now() * 0.05 + Math.random() * 60) % 360;
       // Create particles with 6 size variations: 1x, 2x, 3x, 4x, 5x, 6x
-      // On mobile, use smaller sizes (1x, 2x, 3x only) for subtlety
       const rand = Math.random();
-      const sizeMultiplier = isMobile
-        ? rand < 0.33 ? 1 : rand < 0.66 ? 2 : 3
-        : rand < 0.17 ? 1 : 
-          rand < 0.33 ? 2 : 
-          rand < 0.5 ? 3 : 
-          rand < 0.67 ? 4 : 
-          rand < 0.83 ? 5 : 6;
+      const sizeMultiplier = 
+        rand < 0.17 ? 1 : 
+        rand < 0.33 ? 2 : 
+        rand < 0.5 ? 3 : 
+        rand < 0.67 ? 4 : 
+        rand < 0.83 ? 5 : 6;
       const baseSize = Math.random() * 15 + 10;
       
-      // Much gentler spread on mobile/tablet
-      const spreadMultiplier = isMobile ? 0.4 : 1.5;
-      const randomSpread = isMobile ? 2 : 8;
+      // Moderate spread on mobile, more on desktop
+      const spreadMultiplier = isMobile ? 0.8 : 1.5;
+      const randomSpread = isMobile ? 4 : 8;
       
       return {
         x,
         y,
-        // Controlled spread: gentle on mobile, more on desktop
+        // Controlled spread: moderate on mobile, more on desktop
         vx: vx * spreadMultiplier + (Math.random() - 0.5) * randomSpread,
         vy: vy * spreadMultiplier + (Math.random() - 0.5) * randomSpread,
         size: baseSize * sizeMultiplier,
@@ -280,20 +278,20 @@ function MagicalParticles({
         const dy = mouseRef.current.y - prevMouseRef.current.y;
         const speed = Math.sqrt(dx * dx + dy * dy);
 
-        // Create particles - much more controlled on mobile
+        // Create particles - more generous on mobile
         if (speed > (isMobile ? 0.5 : 1) && particles.length < maxParticles) {
           const particleCount = isMobile 
-            ? Math.min(Math.floor(speed / 15), 1) // Only 1 particle at a time on mobile
+            ? Math.min(Math.floor(speed / 6), 3) // More particles on mobile
             : Math.min(Math.floor(speed / 8), 2);
           
           for (let i = 0; i < particleCount; i++) {
-            const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * (isMobile ? 0.8 : 2);
+            const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * (isMobile ? 1.2 : 2);
             const velocity = isMobile 
-              ? speed * 0.1 + Math.random() * 1.5 // Much slower on mobile
+              ? speed * 0.2 + Math.random() * 3 // Moderate speed on mobile
               : speed * 0.3 + Math.random() * 5;
             
-            // Limited spread in initial position - keep particles on screen
-            const positionSpread = isMobile ? 20 : 50;
+            // Moderate spread in initial position
+            const positionSpread = isMobile ? 35 : 50;
             particles.push(
               createParticle(
                 mouseRef.current.x + (Math.random() - 0.5) * positionSpread,
@@ -413,6 +411,62 @@ export function Hero() {
   const scrollToProjects = () => {
     document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // Device motion detection for mobile/tablet
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const handleDeviceMotion = (e: DeviceMotionEvent) => {
+      if (sectionRef.current && e.acceleration) {
+        const accel = e.acceleration;
+        if (accel.x !== null && accel.y !== null) {
+          const intensity = Math.sqrt(
+            (accel.x || 0) ** 2 + 
+            (accel.y || 0) ** 2 + 
+            (accel.z || 0) ** 2
+          );
+
+          // Trigger effect when device is shaken/moved
+          if (intensity > 2) {
+            const rect = sectionRef.current.getBoundingClientRect();
+            // Create particles from center or random positions
+            setMousePosition({
+              x: rect.width / 2 + (Math.random() - 0.5) * rect.width * 0.6,
+              y: rect.height / 2 + (Math.random() - 0.5) * rect.height * 0.6,
+            });
+            setIsMouseMoving(true);
+
+            if (mouseMoveTimeoutRef.current) {
+              clearTimeout(mouseMoveTimeoutRef.current);
+            }
+            mouseMoveTimeoutRef.current = setTimeout(() => {
+              setIsMouseMoving(false);
+            }, 2000);
+          }
+        }
+      }
+    };
+
+    // Request permission for iOS 13+
+    if (typeof DeviceMotionEvent !== 'undefined' && 
+        typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+      (DeviceMotionEvent as any).requestPermission()
+        .then((response: string) => {
+          if (response === 'granted') {
+            window.addEventListener('devicemotion', handleDeviceMotion);
+          }
+        })
+        .catch(() => {
+          // Permission denied or not available
+        });
+    } else {
+      window.addEventListener('devicemotion', handleDeviceMotion);
+    }
+
+    return () => {
+      window.removeEventListener('devicemotion', handleDeviceMotion);
+    };
+  }, [isMobile]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
