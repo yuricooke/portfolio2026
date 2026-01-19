@@ -412,61 +412,9 @@ export function Hero() {
     document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Device motion detection for mobile/tablet
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const handleDeviceMotion = (e: DeviceMotionEvent) => {
-      if (sectionRef.current && e.acceleration) {
-        const accel = e.acceleration;
-        if (accel.x !== null && accel.y !== null) {
-          const intensity = Math.sqrt(
-            (accel.x || 0) ** 2 + 
-            (accel.y || 0) ** 2 + 
-            (accel.z || 0) ** 2
-          );
-
-          // Trigger effect when device is shaken/moved
-          if (intensity > 2) {
-            const rect = sectionRef.current.getBoundingClientRect();
-            // Create particles from center or random positions
-            setMousePosition({
-              x: rect.width / 2 + (Math.random() - 0.5) * rect.width * 0.6,
-              y: rect.height / 2 + (Math.random() - 0.5) * rect.height * 0.6,
-            });
-            setIsMouseMoving(true);
-
-            if (mouseMoveTimeoutRef.current) {
-              clearTimeout(mouseMoveTimeoutRef.current);
-            }
-            mouseMoveTimeoutRef.current = setTimeout(() => {
-              setIsMouseMoving(false);
-            }, 2000);
-          }
-        }
-      }
-    };
-
-    // Request permission for iOS 13+
-    if (typeof DeviceMotionEvent !== 'undefined' && 
-        typeof (DeviceMotionEvent as any).requestPermission === 'function') {
-      (DeviceMotionEvent as any).requestPermission()
-        .then((response: string) => {
-          if (response === 'granted') {
-            window.addEventListener('devicemotion', handleDeviceMotion);
-          }
-        })
-        .catch(() => {
-          // Permission denied or not available
-        });
-    } else {
-      window.addEventListener('devicemotion', handleDeviceMotion);
-    }
-
-    return () => {
-      window.removeEventListener('devicemotion', handleDeviceMotion);
-    };
-  }, [isMobile]);
+  const isTouchingRef = useRef(false);
+  const touchIntervalRef = useRef<NodeJS.Timeout>();
+  const lastTouchPositionRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -490,26 +438,30 @@ export function Hero() {
       }
     };
 
+    const createParticlesAtPosition = (x: number, y: number) => {
+      setMousePosition({ x, y });
+      setIsMouseMoving(true);
+      
+      if (mouseMoveTimeoutRef.current) {
+        clearTimeout(mouseMoveTimeoutRef.current);
+      }
+      mouseMoveTimeoutRef.current = setTimeout(() => {
+        setIsMouseMoving(false);
+      }, 4000);
+    };
+
     const handleTouchMove = (e: TouchEvent) => {
       if (sectionRef.current && e.touches.length > 0) {
         const rect = sectionRef.current.getBoundingClientRect();
         const touch = e.touches[0];
-        setMousePosition({
-          x: touch.clientX - rect.left,
-          y: touch.clientY - rect.top,
-        });
-
-        // Activate effect on touch move (not just touch start)
-        setIsMouseMoving(true);
-
-        if (mouseMoveTimeoutRef.current) {
-          clearTimeout(mouseMoveTimeoutRef.current);
-        }
-
-        // Keep particles visible longer on mobile for smoother experience
-        mouseMoveTimeoutRef.current = setTimeout(() => {
-          setIsMouseMoving(false);
-        }, 4000);
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        
+        // Store last touch position
+        lastTouchPositionRef.current = { x, y };
+        
+        // Always create particles on touch move
+        createParticlesAtPosition(x, y);
       }
     };
 
@@ -517,22 +469,38 @@ export function Hero() {
       if (sectionRef.current && e.touches.length > 0) {
         const rect = sectionRef.current.getBoundingClientRect();
         const touch = e.touches[0];
-        setMousePosition({
-          x: touch.clientX - rect.left,
-          y: touch.clientY - rect.top,
-        });
-        setIsMouseMoving(true);
-        if (mouseMoveTimeoutRef.current) {
-          clearTimeout(mouseMoveTimeoutRef.current);
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        
+        // Store initial touch position
+        lastTouchPositionRef.current = { x, y };
+        isTouchingRef.current = true;
+        
+        // Always create particles on touch start
+        createParticlesAtPosition(x, y);
+        
+        // Create particles continuously while touching
+        if (touchIntervalRef.current) {
+          clearInterval(touchIntervalRef.current);
         }
-        // Longer timeout on mobile for smoother fade
-        mouseMoveTimeoutRef.current = setTimeout(() => {
-          setIsMouseMoving(false);
-        }, 4000);
+        touchIntervalRef.current = setInterval(() => {
+          if (isTouchingRef.current && sectionRef.current) {
+            // Use the last known touch position
+            const pos = lastTouchPositionRef.current;
+            createParticlesAtPosition(pos.x, pos.y);
+          }
+        }, 100); // Create particles every 100ms while touching
       }
     };
 
     const handleTouchEnd = () => {
+      isTouchingRef.current = false;
+      
+      if (touchIntervalRef.current) {
+        clearInterval(touchIntervalRef.current);
+        touchIntervalRef.current = undefined;
+      }
+      
       if (mouseMoveTimeoutRef.current) {
         clearTimeout(mouseMoveTimeoutRef.current);
       }
@@ -570,6 +538,9 @@ export function Hero() {
         section.removeEventListener("touchcancel", handleTouchEnd);
         if (mouseMoveTimeoutRef.current) {
           clearTimeout(mouseMoveTimeoutRef.current);
+        }
+        if (touchIntervalRef.current) {
+          clearInterval(touchIntervalRef.current);
         }
       };
     }
