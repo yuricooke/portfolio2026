@@ -240,26 +240,33 @@ function MagicalParticles({
     window.addEventListener("resize", resizeCanvas);
 
     const particles = particlesRef.current;
-    const maxParticles = isMobile ? 15 : 25;
+    const maxParticles = isMobile ? 8 : 25; // Much fewer particles on mobile
 
     const createParticle = (x: number, y: number, vx: number, vy: number) => {
       const hue = (Date.now() * 0.05 + Math.random() * 60) % 360;
       // Create particles with 6 size variations: 1x, 2x, 3x, 4x, 5x, 6x
+      // On mobile, use smaller sizes (1x, 2x, 3x only) for subtlety
       const rand = Math.random();
-      const sizeMultiplier = 
-        rand < 0.17 ? 1 : 
-        rand < 0.33 ? 2 : 
-        rand < 0.5 ? 3 : 
-        rand < 0.67 ? 4 : 
-        rand < 0.83 ? 5 : 6;
+      const sizeMultiplier = isMobile
+        ? rand < 0.33 ? 1 : rand < 0.66 ? 2 : 3
+        : rand < 0.17 ? 1 : 
+          rand < 0.33 ? 2 : 
+          rand < 0.5 ? 3 : 
+          rand < 0.67 ? 4 : 
+          rand < 0.83 ? 5 : 6;
       const baseSize = Math.random() * 15 + 10;
+      
+      // Much gentler spread on mobile/tablet
+      const spreadMultiplier = isMobile ? 0.4 : 1.5;
+      const randomSpread = isMobile ? 2 : 8;
+      
       return {
         x,
         y,
-        // Increased spread: more random velocity variation
-        vx: vx * 1.5 + (Math.random() - 0.5) * 8,
-        vy: vy * 1.5 + (Math.random() - 0.5) * 8,
-        size: baseSize * sizeMultiplier, // Varied sizes: 10-25px, 20-50px, 30-75px, 40-100px, 50-125px, 60-150px
+        // Controlled spread: gentle on mobile, more on desktop
+        vx: vx * spreadMultiplier + (Math.random() - 0.5) * randomSpread,
+        vy: vy * spreadMultiplier + (Math.random() - 0.5) * randomSpread,
+        size: baseSize * sizeMultiplier,
         life: 1,
         hue,
       };
@@ -273,16 +280,24 @@ function MagicalParticles({
         const dy = mouseRef.current.y - prevMouseRef.current.y;
         const speed = Math.sqrt(dx * dx + dy * dy);
 
-        // Create fewer, bigger particles with more spread
-        if (speed > 1 && particles.length < maxParticles) {
-          const particleCount = Math.min(Math.floor(speed / 8), 2);
+        // Create particles - much more controlled on mobile
+        if (speed > (isMobile ? 0.5 : 1) && particles.length < maxParticles) {
+          const particleCount = isMobile 
+            ? Math.min(Math.floor(speed / 15), 1) // Only 1 particle at a time on mobile
+            : Math.min(Math.floor(speed / 8), 2);
+          
           for (let i = 0; i < particleCount; i++) {
-            const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 2; // Wider angle spread
-            const velocity = speed * 0.3 + Math.random() * 5; // More velocity variation
+            const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * (isMobile ? 0.8 : 2);
+            const velocity = isMobile 
+              ? speed * 0.1 + Math.random() * 1.5 // Much slower on mobile
+              : speed * 0.3 + Math.random() * 5;
+            
+            // Limited spread in initial position - keep particles on screen
+            const positionSpread = isMobile ? 20 : 50;
             particles.push(
               createParticle(
-                mouseRef.current.x + (Math.random() - 0.5) * 50, // More spread in initial position
-                mouseRef.current.y + (Math.random() - 0.5) * 50,
+                mouseRef.current.x + (Math.random() - 0.5) * positionSpread,
+                mouseRef.current.y + (Math.random() - 0.5) * positionSpread,
                 Math.cos(angle) * velocity,
                 Math.sin(angle) * velocity
               )
@@ -317,8 +332,8 @@ function MagicalParticles({
           }
         }
 
-        // Update life (slower decay = particles last 1s longer)
-        p.life -= 0.008;
+        // Update life (much slower decay on mobile for longer, smoother fade)
+        p.life -= isMobile ? 0.004 : 0.008;
 
         // Draw simple particle with glow
         // Only draw if alpha is meaningful to avoid drawing invisible particles
@@ -430,15 +445,17 @@ export function Hero() {
           y: touch.clientY - rect.top,
         });
 
+        // Activate effect on touch move (not just touch start)
         setIsMouseMoving(true);
 
         if (mouseMoveTimeoutRef.current) {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
 
+        // Keep particles visible longer on mobile for smoother experience
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
-        }, 3000);
+        }, 4000);
       }
     };
 
@@ -454,9 +471,10 @@ export function Hero() {
         if (mouseMoveTimeoutRef.current) {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
+        // Longer timeout on mobile for smoother fade
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
-        }, 3000);
+        }, 4000);
       }
     };
 
@@ -464,9 +482,10 @@ export function Hero() {
       if (mouseMoveTimeoutRef.current) {
         clearTimeout(mouseMoveTimeoutRef.current);
       }
+      // Keep particles visible a bit longer after touch ends
       mouseMoveTimeoutRef.current = setTimeout(() => {
         setIsMouseMoving(false);
-      }, 3000);
+      }, 4000);
     };
 
     const section = sectionRef.current;
