@@ -47,45 +47,26 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 w-full pt-4 transition-transform duration-300 ease-in-out ${
+      className={`fixed top-0 right-5 md:right-10 lg:right-20 pt-4 transition-transform duration-300 ease-in-out ${
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
       style={{ zIndex: 99999 }}
     >
-      <div className="max-w-6xl mx-auto rounded-3xl bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm px-6">
-        <div className="flex items-center justify-between h-16">
+      <div className="w-fit rounded-3xl bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm px-6">
+        <div className="flex items-center justify-between h-16 gap-4">
           <Link
             href="/"
-            className="hero-tagline text-gray-600 text-2xl md:text-2xl"
+            className="hero-tagline text-gray-700 text-xl md:text-2xl"
+            style={{ fontFamily: "plantin, serif", fontWeight: 600, letterSpacing: "0.05em" }}
           >
-            Yuri Cooke
+            <span className="text-gray-700">FRONT</span>
+            <span className="text-gray-400">ÆND</span>
+            <span className="text-gray-700">ESIGN</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {isHomePage ? (
-              navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-gray-700 hover:text-teal-500 transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))
-            ) : (
-              <Link
-                href="/"
-                className="text-gray-700 hover:text-teal-500 transition-colors"
-              >
-                Back to Home
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile Menu Button */}
+          {/* Hamburger Menu Button - Desktop and Mobile */}
           <button
-            className="md:hidden text-blue-950"
+            className="text-blue-950"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
           >
@@ -93,9 +74,9 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile and Desktop Navigation Menu */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
+          <div className="py-4 border-t border-gray-200">
             {isHomePage ? (
               navLinks.map((link) => (
                 <a

@@ -126,8 +126,11 @@ function AirportPanelLetter({
 
   return (
     <span
-      className="inline-block airport-letter"
-      style={{ fontFamily: FONTS[currentFontIndex] }}
+      className="inline-block airport-letter rainbow-letter"
+      style={{
+        fontFamily: FONTS[currentFontIndex],
+        animationDelay: `${letterIndex * 0.12}s`,
+      }}
     >
       {currentChar}
     </span>
@@ -382,9 +385,13 @@ function MagicalParticles({
 
 export function Hero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [blobPosition, setBlobPosition] = useState({ x: 0, y: 0 });
   const [isMouseMoving, setIsMouseMoving] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [waveShift, setWaveShift] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
+  const blobTargetRef = useRef({ x: 0, y: 0 });
+  const blobRafRef = useRef<number>();
   const mouseMoveTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Detect mobile device
@@ -401,11 +408,49 @@ export function Hero() {
   useEffect(() => {
     if (sectionRef.current) {
       const rect = sectionRef.current.getBoundingClientRect();
-      setMousePosition({
+      const centered = {
         x: rect.width / 2,
         y: rect.height / 2,
-      });
+      };
+      setMousePosition(centered);
+      setBlobPosition(centered);
+      blobTargetRef.current = centered;
     }
+  }, []);
+
+  useEffect(() => {
+    blobTargetRef.current = mousePosition;
+  }, [mousePosition]);
+
+  useEffect(() => {
+    const animateBlob = () => {
+      setBlobPosition((prev) => ({
+        x: prev.x + (blobTargetRef.current.x - prev.x) * 0.18,
+        y: prev.y + (blobTargetRef.current.y - prev.y) * 0.18,
+      }));
+      blobRafRef.current = requestAnimationFrame(animateBlob);
+    };
+    blobRafRef.current = requestAnimationFrame(animateBlob);
+    return () => {
+      if (blobRafRef.current) {
+        cancelAnimationFrame(blobRafRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      const top = sectionRef.current.offsetTop;
+      const height = sectionRef.current.offsetHeight || 1;
+      const localScroll = Math.max(0, Math.min(window.scrollY - top, height));
+      // Stronger horizontal drift for clearer parallax between layers.
+      setWaveShift(Math.sin(localScroll * 0.009) * 420);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToProjects = () => {
@@ -431,7 +476,7 @@ export function Hero() {
           clearTimeout(mouseMoveTimeoutRef.current);
         }
 
-        const timeout = isMobile ? 3000 : 4000;
+        const timeout = isMobile ? 1500 : 300;
         mouseMoveTimeoutRef.current = setTimeout(() => {
           setIsMouseMoving(false);
         }, timeout);
@@ -447,7 +492,7 @@ export function Hero() {
       }
       mouseMoveTimeoutRef.current = setTimeout(() => {
         setIsMouseMoving(false);
-      }, 4000);
+      }, 2200);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -507,7 +552,7 @@ export function Hero() {
       // Keep particles visible a bit longer after touch ends
       mouseMoveTimeoutRef.current = setTimeout(() => {
         setIsMouseMoving(false);
-      }, 4000);
+      }, 2200);
     };
 
     const section = sectionRef.current;
@@ -549,91 +594,213 @@ export function Hero() {
   return (
     <section
       ref={sectionRef}
-      className="min-h-screen flex justify-center bg-white px-6 relative overflow-hidden"
+      className="bg-white relative overflow-hidden"
+      style={{ height: "130vh", zIndex: 1 }}
     >
-      {/* Magical Particles Effect */}
-      <MagicalParticles
-        mousePosition={mousePosition}
-        isMouseMoving={isMouseMoving}
-        isMobile={isMobile}
-      />
-
-      {/* BACKUP: Animated Blob with effects (commented out) */}
-      {/* 
+      {/* Blob animado de fundo (rainbow/morph) seguindo o mouse */}
       <div
-        ref={blobRef}
         className="absolute pointer-events-none"
         style={{
-          width: isMobile ? "550px" : "1200px",
-          height: isMobile ? "550px" : "1200px",
           left: `${blobPosition.x}px`,
           top: `${blobPosition.y}px`,
+          width: isMobile ? "520px" : "980px",
+          height: isMobile ? "520px" : "980px",
           transform: "translate(-50%, -50%)",
-          willChange: "transform, opacity",
-          zIndex: 2,
           opacity: isMouseMoving ? 1 : 0,
-          transition: isMouseMoving
-            ? "opacity 0.3s ease-out, transform 0.1s linear"
-            : isMobile
-            ? "opacity 2s ease-out, transform 0.1s linear"
-            : "opacity 0.5s ease-out, transform 0.1s linear",
+          zIndex: 1,
+          transition: isMobile ? "opacity 0.7s ease-out" : "opacity 0.35s ease-out",
+          willChange: "left, top, transform",
         }}
       >
         <div className="blob-container">
           <div className="blob-window" />
         </div>
       </div>
-      */}
-      <div className="max-w-6xl w-full pt-[8rem] relative z-10">
-        <div className="text-left flex flex-col">
-          {/* Title: FRONTÆNDESIGN */}
 
-          <div className="mb-8">
-            <Title />
-          </div>
+      {/* Conteúdo sticky no topo - fica fixo */}
+      <div className="sticky top-0 h-screen flex justify-center items-center px-6" style={{ zIndex: 2 }}>
+        <div className="max-w-6xl w-full">
+          <div className="text-left flex flex-col fixed top-40" style={{ zIndex: 1 }}>
+            {/* Title: FRONTÆNDESIGN */}
+            <div className="mb-8">
+              <Title />
+            </div>
 
-          <p
-            className="text-gray-400 mb-10 max-w-2xl text-[1rem] md:text-[1.25rem]"
-            dangerouslySetInnerHTML={{
-              __html:
-                "Where pixel-perfect design meets clean code.<br /> Creating digital experiences that not only look stunning but perform flawlessly across every device.",
-            }}
-          />
+            <p
+              className="text-gray-400 mb-10 max-w-2xl text-[1rem] md:text-[1.25rem]"
+              dangerouslySetInnerHTML={{
+                __html:
+                  "Where pixel-perfect design meets clean code.<br /> Creating digital experiences that not only look stunning but perform flawlessly across every device.",
+              }}
+            />
 
-          <div className="flex gap-4 flex-wrap">
-            <button
-              type="button"
-              onClick={scrollToProjects}
-              className="bg-gray-800 text-white px-8 py-3 rounded-full hover:bg-gray-600 transition-all hover:shadow-lg hover:scale-105"
+            <div className="flex gap-4 flex-wrap">
+              <button
+                type="button"
+                onClick={scrollToProjects}
+                className="bg-gray-800 text-white px-8 py-3 rounded-full hover:bg-gray-600 transition-all hover:shadow-lg hover:scale-105"
+              >
+                View My Work
+              </button>
+              <a
+                href="#contact"
+                className="border-2 bg-white border-gray-400 text-gray-600  px-8 py-3 rounded-full hover:bg-gray-200 hover:scale-105 transition-all"
+              >
+                Get in Touch
+              </a>
+            </div>
+            <div
+              className="mt-20 flex items-center w-full justify-center gap-2 relative hidden"
             >
-              View My Work
-            </button>
-            <a
-              href="#contact"
-              className="border-2 bg-white border-gray-400 text-gray-600  px-8 py-3 rounded-full hover:bg-gray-200 hover:scale-105 transition-all"
-            >
-              Get in Touch
-            </a>
-          </div>
-          <div
-            className="mt-20 flex items-center w-full justify-center gap-2 relative"
-            style={{ zIndex: 1000 }}
-          >
-            <TypewriterText />
+              <TypewriterText />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* <div className="absolute bottom-0 lg:bottom-[-10px] w-full flex items-end justify-end pe-6 z-10">
-        <Image
-          src="/whale-big.png"
-          alt="Portfolio Sketches"
-          width={300}
-          height={300}
-          className="object-contain mr-10"
-          priority
+      {/* Ondas que sobem como cortinas - cobrem o conteúdo */}
+      <div className="absolute bottom-0 left-0 w-full pointer-events-none" style={{ zIndex: 3 }}>
+        <div
+          className="absolute left-0 w-full"
+          style={{
+            bottom: 0,
+            height: "260px",
+            background:
+              "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 72%, rgba(255,255,255,1) 100%)",
+            zIndex: -1,
+          }}
         />
-      </div> */}
+        {/* Soft Wave Shapes - 5 camadas orgânicas e suaves como na referência */}
+      {/* Camada 5 - Backmost fixa, preenchendo ate o fundo do Hero */}
+      <svg
+        className="absolute pointer-events-none"
+        style={{
+          bottom: "0px",
+          zIndex: 0,
+          height: "360px",
+          left: "-160vw",
+          width: "420vw",
+          transform: `translate3d(${waveShift * 0.25}px, 0, 0)`,
+          willChange: "transform",
+        }}
+        viewBox="0 0 1440 360"
+        preserveAspectRatio="none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0,250 C120,230 190,170 280,150 C360,132 430,165 500,185 C585,208 660,190 740,150 C805,118 875,120 940,158 C995,190 1060,195 1120,170 C1190,140 1270,128 1340,146 C1390,160 1420,170 1440,175 L1440,360 L0,360 Z"
+          fill="white"
+          style={{
+            filter: "drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.08))",
+          }}
+        />
+      </svg>
+
+      {/* Camada 4 - Ondulações médias e suaves */}
+      <svg
+        className="absolute pointer-events-none"
+        style={{
+          bottom: "80px",
+          zIndex: 2,
+          height: "200px",
+          left: "-160vw",
+          width: "420vw",
+          transform: `translate3d(${-waveShift * 0.35}px, 0, 0)`,
+          willChange: "transform",
+        }}
+        viewBox="0 0 1440 200"
+        preserveAspectRatio="none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0,185 C80,150 140,110 210,105 C275,100 320,128 370,138 C430,150 500,128 570,100 C630,78 690,82 745,112 C790,136 840,138 895,122 C960,102 1020,82 1080,85 C1140,88 1190,112 1235,128 C1285,145 1340,150 1440,140 L1440,200 L0,200 Z"
+          fill="white"
+          style={{
+            filter: "drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.08))",
+          }}
+        />
+      </svg>
+
+      {/* Camada 3 - Ondulações mais frequentes mas suaves */}
+      <svg
+        className="absolute pointer-events-none"
+        style={{
+          bottom: "40px",
+          zIndex: 3,
+          height: "180px",
+          left: "-160vw",
+          width: "420vw",
+          transform: `translate3d(${waveShift * 0.45}px, 0, 0)`,
+          willChange: "transform",
+        }}
+        viewBox="0 0 1440 180"
+        preserveAspectRatio="none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0,170 C70,140 125,108 185,102 C245,96 285,120 330,132 C385,146 445,134 505,110 C560,88 615,86 670,108 C710,124 760,128 810,118 C865,102 920,82 975,84 C1030,86 1075,106 1115,120 C1160,136 1210,138 1270,126 C1330,114 1380,116 1440,122 L1440,180 L0,180 Z"
+          fill="white"
+          style={{
+            filter: "drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.08))",
+          }}
+        />
+      </svg>
+
+      {/* Camada 2 - Ondulações frequentes e suaves */}
+      <svg
+        className="absolute pointer-events-none"
+        style={{
+          bottom: "20px",
+          zIndex: 4,
+          height: "170px",
+          left: "-160vw",
+          width: "420vw",
+          transform: `translate3d(${-waveShift * 0.55}px, 0, 0)`,
+          willChange: "transform",
+        }}
+        viewBox="0 0 1440 170"
+        preserveAspectRatio="none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0,160 C55,132 105,102 160,96 C215,90 250,112 292,124 C340,138 390,130 445,110 C495,92 545,90 595,108 C635,122 680,126 725,118 C775,106 825,90 875,92 C925,94 965,110 1000,122 C1040,136 1085,136 1135,124 C1185,112 1230,112 1280,120 C1330,128 1380,128 1440,124 L1440,170 L0,170 Z"
+          fill="white"
+          style={{
+            filter: "drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.08))",
+          }}
+        />
+      </svg>
+
+      {/* Camada 1 - Frontmost, ondulações mais frequentes mas sempre suaves */}
+      <svg
+        className="absolute pointer-events-none"
+        style={{
+          bottom: "0px",
+          zIndex: 5,
+          height: "160px",
+          left: "-160vw",
+          width: "420vw",
+          transform: `translate3d(${waveShift * 0.7}px, 0, 0)`,
+          willChange: "transform",
+        }}
+        viewBox="0 0 1440 160"
+        preserveAspectRatio="none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0,150 C45,126 88,98 136,92 C184,86 214,104 250,116 C292,130 336,124 382,106 C426,90 472,88 516,104 C552,118 592,122 632,116 C676,104 720,90 764,92 C808,94 842,108 874,118 C910,130 950,132 994,122 C1038,112 1076,112 1116,120 C1160,128 1200,128 1242,120 C1288,112 1330,112 1370,118 C1400,122 1420,124 1440,126 L1440,160 L0,160 Z"
+          fill="white"
+          style={{
+            filter: "drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.08))",
+          }}
+        />
+      </svg>
+      </div>
     </section>
   );
 }

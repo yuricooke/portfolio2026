@@ -47,7 +47,7 @@ const skills = [
 
 export function Skills() {
   return (
-    <section id="skills" className="py-20 px-6 bg-white">
+    <section id="skills" className="py-20 px-6 bg-white relative" style={{ zIndex: 10 }}>
       <div className="max-w-6xl mx-auto">
         <div className=" mb-16">
           <h2 className="mb-4 text-blue-950 text-3xl leading-tight title">

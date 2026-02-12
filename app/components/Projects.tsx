@@ -68,7 +68,7 @@ const projects = [
 
 export function Projects() {
   return (
-    <section id="projects" className="py-20 px-6 bg-gray-900 text-white">
+    <section id="projects" className="py-20 px-6 bg-gray-900 text-white relative" style={{ zIndex: 10 }}>
       <div className="max-w-6xl mx-auto">
         <div className="mb-16">
           <h2 className="mb-4 text-white text-3xl leading-tight title">

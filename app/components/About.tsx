@@ -2,14 +2,14 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 export function About() {
   return (
-    <section id="about" className="py-20 px-6 bg-slate-800 ">
+    <section id="about" className="py-20 px-6 bg-white relative" style={{ zIndex: 10 }}>
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
           <div className="order-2 md:order-1 md:col-span-2">
-            <h2 className="mb-6 text-gray-300 text-3xl leading-tight title">
+            <h2 className="mb-6 text-blue-950 text-3xl leading-tight title">
               &lt;About Me /&gt;
             </h2>
-            <div className="text-md space-y-6 text-gray-300 md:pr-20">
+            <div className="text-md space-y-6 text-gray-700 md:pr-20">
               <p>
                 I'm a passionate front-end developer and UI/UX designer with a
                 keen eye for detail and a love for creating seamless user

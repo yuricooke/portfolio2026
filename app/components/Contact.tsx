@@ -2,7 +2,7 @@ import { Mail, MessageCircle } from "lucide-react";
 
 export function Contact() {
   return (
-    <section id="contact" className="py-20 px-6 bg-white">
+    <section id="contact" className="py-20 px-6 bg-white relative" style={{ zIndex: 10 }}>
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="mb-4 text-blue-950 text-3xl leading-tight title">
           &lt;Get in Touch /&gt;
